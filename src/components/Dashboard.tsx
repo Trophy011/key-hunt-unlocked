@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,9 @@ import {
   LogOut,
   ArrowUpRight,
   ArrowDownLeft,
-  Plus
+  Plus,
+  User,
+  Lock
 } from "lucide-react";
 import AccountCard from "@/components/AccountCard";
 import TransactionHistory from "@/components/TransactionHistory";
@@ -56,11 +57,11 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
   const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
 
   const recentTransactions = [
-    { id: "1", description: "Grocery Store", amount: -85.42, date: "2024-01-15", type: "debit" },
-    { id: "2", description: "Salary Deposit", amount: 3200.00, date: "2024-01-14", type: "credit" },
-    { id: "3", description: "Electric Bill", amount: -120.50, date: "2024-01-13", type: "debit" },
-    { id: "4", description: "ATM Withdrawal", amount: -100.00, date: "2024-01-12", type: "debit" },
-    { id: "5", description: "Interest Earned", amount: 15.25, date: "2024-01-11", type: "credit" }
+    { id: "1", description: "Grocery Store", amount: -85.42, date: "2024-01-15", type: "debit" as const },
+    { id: "2", description: "Salary Deposit", amount: 3200.00, date: "2024-01-14", type: "credit" as const },
+    { id: "3", description: "Electric Bill", amount: -120.50, date: "2024-01-13", type: "debit" as const },
+    { id: "4", description: "ATM Withdrawal", amount: -100.00, date: "2024-01-12", type: "debit" as const },
+    { id: "5", description: "Interest Earned", amount: 15.25, date: "2024-01-11", type: "credit" as const }
   ];
 
   return (
