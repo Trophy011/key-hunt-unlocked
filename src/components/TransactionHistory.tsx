@@ -15,16 +15,20 @@ import {
 } from "@/components/ui/table";
 import { Search, Filter, Download, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
-interface Transaction {
+interface BankTransaction {
   id: string;
-  description: string;
   amount: number;
-  date: string;
-  type: "credit" | "debit";
+  currency: string;
+  description: string;
+  transaction_type: string;
+  status: string;
+  created_at: string;
+  from_account?: { currency: string; account_number: string };
+  to_account?: { currency: string; account_number: string };
 }
 
 interface TransactionHistoryProps {
-  transactions: Transaction[];
+  transactions: BankTransaction[];
 }
 
 const TransactionHistory = ({ transactions }: TransactionHistoryProps) => {
@@ -32,20 +36,16 @@ const TransactionHistory = ({ transactions }: TransactionHistoryProps) => {
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
 
-  // Extended transaction data for demo
-  const allTransactions = [
-    ...transactions,
-    { id: "6", description: "Online Purchase - Amazon", amount: -45.99, date: "2024-01-10", type: "debit" as const },
-    { id: "7", description: "Cash Deposit", amount: 500.00, date: "2024-01-09", type: "credit" as const },
-    { id: "8", description: "Gas Station", amount: -35.20, date: "2024-01-08", type: "debit" as const },
-    { id: "9", description: "Restaurant", amount: -67.85, date: "2024-01-07", type: "debit" as const },
-    { id: "10", description: "Refund - Store Credit", amount: 23.50, date: "2024-01-06", type: "credit" as const },
-    { id: "11", description: "Insurance Payment", amount: -125.00, date: "2024-01-05", type: "debit" as const },
-    { id: "12", description: "Freelance Income", amount: 750.00, date: "2024-01-04", type: "credit" as const },
-    { id: "13", description: "Coffee Shop", amount: -4.95, date: "2024-01-03", type: "debit" as const },
-    { id: "14", description: "Transfer from Savings", amount: 200.00, date: "2024-01-02", type: "credit" as const },
-    { id: "15", description: "Subscription - Netflix", amount: -15.99, date: "2024-01-01", type: "debit" as const }
-  ];
+  // Convert bank transactions to the format expected by the component
+  const allTransactions = transactions.map(transaction => ({
+    id: transaction.id,
+    description: transaction.description,
+    amount: transaction.transaction_type === 'deposit' ? transaction.amount : -transaction.amount,
+    date: transaction.created_at,
+    type: transaction.transaction_type === 'deposit' ? 'credit' as const : 'debit' as const,
+    currency: transaction.currency,
+    status: transaction.status
+  }));
 
   const filteredTransactions = allTransactions
     .filter(transaction => {
@@ -165,12 +165,13 @@ const TransactionHistory = ({ transactions }: TransactionHistoryProps) => {
           <div className="rounded-md border">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                </TableRow>
+                 <TableRow>
+                   <TableHead>Date</TableHead>
+                   <TableHead>Description</TableHead>
+                   <TableHead>Type</TableHead>
+                   <TableHead>Status</TableHead>
+                   <TableHead className="text-right">Amount</TableHead>
+                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredTransactions.map((transaction) => (
@@ -179,16 +180,21 @@ const TransactionHistory = ({ transactions }: TransactionHistoryProps) => {
                       {new Date(transaction.date).toLocaleDateString()}
                     </TableCell>
                     <TableCell>{transaction.description}</TableCell>
-                    <TableCell>
-                      <Badge variant={transaction.type === "credit" ? "default" : "secondary"}>
-                        {transaction.type === "credit" ? "Income" : "Expense"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className={`text-right font-medium ${
-                      transaction.amount > 0 ? "text-green-600" : "text-red-600"
-                    }`}>
-                      {transaction.amount > 0 ? "+" : ""}${Math.abs(transaction.amount).toFixed(2)}
-                    </TableCell>
+                     <TableCell>
+                       <Badge variant={transaction.type === "credit" ? "default" : "secondary"}>
+                         {transaction.type === "credit" ? "Income" : "Expense"}
+                       </Badge>
+                     </TableCell>
+                     <TableCell>
+                       <Badge variant={transaction.status === "completed" ? "default" : "secondary"}>
+                         {transaction.status}
+                       </Badge>
+                     </TableCell>
+                     <TableCell className={`text-right font-medium ${
+                       transaction.amount > 0 ? "text-green-600" : "text-red-600"
+                     }`}>
+                       {transaction.amount > 0 ? "+" : ""}{Math.abs(transaction.amount).toFixed(2)} {transaction.currency}
+                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
