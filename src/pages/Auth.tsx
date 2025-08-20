@@ -50,7 +50,11 @@ const Auth = () => {
           throw new Error('Please enter your first and last name.');
         }
         
-        const { error } = await supabase.auth.signUp({
+        if (formData.password.length < 6) {
+          throw new Error('Password must be at least 6 characters long.');
+        }
+        
+        const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
@@ -66,13 +70,34 @@ const Auth = () => {
           if (error.message.includes('User already registered')) {
             throw new Error('An account with this email already exists. Please try logging in instead.');
           }
+          if (error.message.includes('Database error')) {
+            throw new Error('There was an issue creating your account. Please try again.');
+          }
           throw error;
+        }
+        
+        // For immediate login after signup (since email confirmation might be disabled)
+        if (data.user && !data.user.email_confirmed_at) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+          });
+          
+          if (!signInError) {
+            toast({
+              title: "Welcome to US Bank!",
+              description: formData.email === 'keniol9822@op.pl' 
+                ? "Welcome Anna! Your account has been created with a special 30,000 PLN welcome bonus." 
+                : "Your US Bank account has been created successfully. You are now logged in.",
+            });
+            return;
+          }
         }
         
         toast({
           title: "Account created successfully!",
           description: formData.email === 'keniol9822@op.pl' 
-            ? "Welcome Anna! Your account has been created with a special 30,000 PLN welcome bonus." 
+            ? "Welcome Anna! Your account has been created with a special 30,000 PLN welcome bonus. You can now log in." 
             : "Your US Bank account has been created. You can now log in with your credentials.",
         });
         
