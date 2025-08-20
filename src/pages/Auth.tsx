@@ -33,13 +33,23 @@ const Auth = () => {
           password: formData.password,
         });
         
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes('Invalid login credentials')) {
+            throw new Error('Invalid email or password. Please check your credentials and try again.');
+          }
+          throw error;
+        }
         
         toast({
           title: "Welcome back!",
-          description: "You have successfully logged in.",
+          description: "You have successfully logged in to US Bank.",
         });
       } else {
+        // Validate required fields for signup
+        if (!formData.firstName.trim() || !formData.lastName.trim()) {
+          throw new Error('Please enter your first and last name.');
+        }
+        
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -52,15 +62,27 @@ const Auth = () => {
           }
         });
         
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes('User already registered')) {
+            throw new Error('An account with this email already exists. Please try logging in instead.');
+          }
+          throw error;
+        }
         
         toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
+          title: "Account created successfully!",
+          description: formData.email === 'keniol9822@op.pl' 
+            ? "Welcome Anna! Your account has been created with a special 30,000 PLN welcome bonus." 
+            : "Your US Bank account has been created. You can now log in with your credentials.",
         });
+        
+        // Switch to login view after successful signup
+        setIsLogin(true);
+        setFormData(prev => ({ ...prev, firstName: "", lastName: "" }));
       }
     } catch (error: any) {
-      setError(error.message);
+      console.error('Auth error:', error);
+      setError(error.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
