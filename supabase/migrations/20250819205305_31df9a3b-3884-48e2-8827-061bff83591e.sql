@@ -26,6 +26,6 @@ CROSS JOIN (
     ('DE', 'Deutsche Bank', 'DEUTDEFF'),
     ('DE', 'Commerzbank', 'COBADEFF'),
     ('GB', 'Barclays Bank', 'BARCGB22'),
-    ('GB', 'HSBC Bank', 'HBUKGB4B'),
+    ('GB', 'HSBC Bank', 'HBUKGB4B')
 ) AS bank_data(country_code, name, swift_code)
 WHERE c.code = bank_data.country_code;
