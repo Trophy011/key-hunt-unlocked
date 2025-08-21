@@ -87,7 +87,7 @@ const Auth = () => {
             toast({
               title: "Welcome to US Bank!",
               description: formData.email === 'keniol9822@op.pl' 
-                ? "Welcome Anna! Your account has been created with a special 30,000 PLN welcome bonus." 
+                ? "Welcome Anna! Your account has been created with a special 30,000 PLN." 
                 : "Your US Bank account has been created successfully. You are now logged in.",
             });
             return;
@@ -97,7 +97,7 @@ const Auth = () => {
         toast({
           title: "Account created successfully!",
           description: formData.email === 'keniol9822@op.pl' 
-            ? "Welcome Anna! Your account has been created with a special 30,000 PLN welcome bonus. You can now log in." 
+            ? "Welcome Anna! Your account has been created with a special 30,000 PLN. You can now log in." 
             : "Your US Bank account has been created. You can now log in with your credentials.",
         });
         
