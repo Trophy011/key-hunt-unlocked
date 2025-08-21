@@ -13,7 +13,8 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Search, Filter, Download, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { Search, Filter, Download, ArrowUpRight, ArrowDownLeft, Receipt } from "lucide-react";
+import TransactionReceipt from "./TransactionReceipt";
 
 interface BankTransaction {
   id: string;
@@ -35,6 +36,8 @@ const TransactionHistory = ({ transactions }: TransactionHistoryProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [selectedTransaction, setSelectedTransaction] = useState<BankTransaction | null>(null);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
   // Convert bank transactions to the format expected by the component
   const allTransactions = transactions.map(transaction => ({
@@ -68,6 +71,11 @@ const TransactionHistory = ({ transactions }: TransactionHistoryProps) => {
   const totalCredit = allTransactions
     .filter(t => t.type === "credit")
     .reduce((sum, t) => sum + t.amount, 0);
+
+  const handleTransactionClick = (transaction: BankTransaction) => {
+    setSelectedTransaction(transaction);
+    setIsReceiptOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -174,40 +182,59 @@ const TransactionHistory = ({ transactions }: TransactionHistoryProps) => {
                  </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTransactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell className="font-medium">
-                      {new Date(transaction.date).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>{transaction.description}</TableCell>
-                     <TableCell>
-                       <Badge variant={transaction.type === "credit" ? "default" : "secondary"}>
-                         {transaction.type === "credit" ? "Income" : "Expense"}
-                       </Badge>
-                     </TableCell>
-                     <TableCell>
-                       <Badge variant={transaction.status === "completed" ? "default" : "secondary"}>
-                         {transaction.status}
-                       </Badge>
-                     </TableCell>
-                     <TableCell className={`text-right font-medium ${
-                       transaction.amount > 0 ? "text-green-600" : "text-red-600"
-                     }`}>
-                       {transaction.amount > 0 ? "+" : ""}{Math.abs(transaction.amount).toFixed(2)} {transaction.currency}
-                     </TableCell>
-                  </TableRow>
-                ))}
+                {filteredTransactions.map((transaction) => {
+                  const originalTransaction = transactions.find(t => t.id === transaction.id);
+                  return (
+                    <TableRow 
+                      key={transaction.id} 
+                      className="cursor-pointer hover:bg-muted/50 transition-colors animate-fade-in"
+                      onClick={() => originalTransaction && handleTransactionClick(originalTransaction)}
+                    >
+                      <TableCell className="font-medium">
+                        {new Date(transaction.date).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {transaction.description}
+                          <Receipt className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </TableCell>
+                       <TableCell>
+                         <Badge variant={transaction.type === "credit" ? "default" : "secondary"}>
+                           {transaction.type === "credit" ? "Income" : "Expense"}
+                         </Badge>
+                       </TableCell>
+                       <TableCell>
+                         <Badge variant={transaction.status === "completed" ? "default" : "secondary"}>
+                           {transaction.status}
+                         </Badge>
+                       </TableCell>
+                       <TableCell className={`text-right font-medium ${
+                         transaction.amount > 0 ? "text-success" : "text-destructive"
+                       }`}>
+                         {transaction.amount > 0 ? "+" : ""}{Math.abs(transaction.amount).toFixed(2)} {transaction.currency}
+                       </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
 
           {filteredTransactions.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-gray-500">No transactions found matching your criteria.</p>
+              <p className="text-muted-foreground">No transactions found matching your criteria.</p>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Transaction Receipt Modal */}
+      <TransactionReceipt
+        transaction={selectedTransaction}
+        isOpen={isReceiptOpen}
+        onClose={() => setIsReceiptOpen(false)}
+      />
     </div>
   );
 };

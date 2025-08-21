@@ -89,6 +89,18 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Banking theme colors */
+    --success: 142 76% 36%;
+    --success-foreground: 355.7 100% 97.3%;
+    --warning: 35 91% 65%;
+    --warning-foreground: 26 83% 14%;
+    --info: 217 91% 60%;
+    --info-foreground: 355.7 100% 97.3%;
+    
+    /* Banking gradients */
+    --banking-gradient: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(142 76% 36%) 100%);
+    --card-gradient: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(210 40% 98%) 100%);
   }
 }
 
