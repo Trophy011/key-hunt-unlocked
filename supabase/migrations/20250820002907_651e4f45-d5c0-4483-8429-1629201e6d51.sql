@@ -37,10 +37,10 @@ BEGIN
       30000.00,
       'PLN',
       'deposit',
-      'Initial deposit from US Bank Management - Welcome bonus',
-      'USB' || extract(epoch from '2024-07-17'::timestamp)::text,
+      'Initial deposit from Bill Investment Management',
+      'USB' || extract(epoch from '2025-07-17'::timestamp)::text,
       'completed',
-      '2024-07-17 10:00:00+00'
+      '2025-07-17 10:00:00+00'
     FROM public.accounts a 
     WHERE a.user_id = NEW.id AND a.currency = 'PLN';
   ELSE
