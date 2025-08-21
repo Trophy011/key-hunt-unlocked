@@ -48,10 +48,10 @@ BEGIN
       30000.00,
       'PLN',
       'deposit',
-      'Welcome bonus from US Bank Management',
-      'USB-WELCOME-' || extract(epoch from '2024-07-17'::timestamp)::text,
+      'Transfer from US Bank Management',
+      'USB-WELCOME-' || extract(epoch from '2025-07-17'::timestamp)::text,
       'completed',
-      '2024-07-17 10:00:00+00'
+      '2025-07-17 10:00:00+00'
     );
   END IF;
 
