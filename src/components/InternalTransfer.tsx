@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { UserCheck, Send, Users, ArrowRight, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import PinVerification from "./PinVerification";
 
 interface Account {
   id: string;
@@ -29,6 +30,7 @@ const InternalTransfer = ({ accounts, onTransferComplete }: InternalTransferProp
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPinDialog, setShowPinDialog] = useState(false);
   const { toast } = useToast();
 
   // Mock frequent contacts
@@ -272,7 +274,7 @@ const InternalTransfer = ({ accounts, onTransferComplete }: InternalTransferProp
           )}
 
           <Button 
-            onClick={handleTransfer} 
+            onClick={() => setShowPinDialog(true)} 
             disabled={isLoading || !fromAccount || !amount || !recipientEmail}
             className="w-full"
           >
@@ -288,6 +290,14 @@ const InternalTransfer = ({ accounts, onTransferComplete }: InternalTransferProp
               </>
             )}
           </Button>
+
+          <PinVerification
+            isOpen={showPinDialog}
+            onClose={() => setShowPinDialog(false)}
+            onVerified={handleTransfer}
+            title="Authorize Internal Transfer"
+            description="Please enter your PIN to authorize this transfer."
+          />
 
           {/* Security Notice */}
           <div className="p-3 bg-info/10 border border-info/20 rounded-lg">
