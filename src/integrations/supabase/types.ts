@@ -138,6 +138,7 @@ export type Database = {
           description: string | null
           from_account_id: string | null
           id: string
+          pin_verified: boolean | null
           recipient_name: string | null
           reference_number: string
           status: string
@@ -153,6 +154,7 @@ export type Database = {
           description?: string | null
           from_account_id?: string | null
           id?: string
+          pin_verified?: boolean | null
           recipient_name?: string | null
           reference_number: string
           status?: string
@@ -168,6 +170,7 @@ export type Database = {
           description?: string | null
           from_account_id?: string | null
           id?: string
+          pin_verified?: boolean | null
           recipient_name?: string | null
           reference_number?: string
           status?: string
@@ -199,6 +202,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      transfer_restrictions: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          restriction_amount: number
+          restriction_currency: string
+          restriction_type: string
+          target_email: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          restriction_amount: number
+          restriction_currency: string
+          restriction_type: string
+          target_email?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          restriction_amount?: number
+          restriction_currency?: string
+          restriction_type?: string
+          target_email?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_pins: {
+        Row: {
+          created_at: string | null
+          id: string
+          pin_hash: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          pin_hash: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          pin_hash?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
