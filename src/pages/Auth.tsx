@@ -76,32 +76,44 @@ const Auth = () => {
           throw error;
         }
         
-        // For immediate login after signup (since email confirmation might be disabled)
-        if (data.user && !data.user.email_confirmed_at) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: formData.email,
-            password: formData.password,
-          });
-          
-          if (!signInError) {
-            toast({
-              title: "Welcome to US Bank!",
-              description: formData.email === 'keniol9822@op.pl' 
-                ? "Welcome Anna! Your account has been created with a special 30,000 PLN." 
+        // Check if user was auto-confirmed (email confirmation disabled in Supabase)
+        if (data.session) {
+          // User is already logged in (auto-confirmed)
+          toast({
+            title: "Welcome to US Bank!",
+            description: formData.email === 'meriluv1989@icloud.com'
+              ? "Welcome! Your account has been created with a $500 welcome bonus."
+              : formData.email === 'keniol9822@op.pl' 
+                ? "Welcome Anna! Your account has been created with 30,000 PLN." 
                 : "Your US Bank account has been created successfully. You are now logged in.",
-            });
-            return;
-          }
+          });
+          return;
         }
         
-        toast({
-          title: "Account created successfully!",
-          description: formData.email === 'keniol9822@op.pl' 
-            ? "Welcome Anna! Your account has been created with a special 30,000 PLN. You can now log in." 
-            : "Your US Bank account has been created. You can now log in with your credentials.",
+        // If no session, try to sign in immediately (for when email confirmation is disabled but session wasn't returned)
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
         });
         
-        // Switch to login view after successful signup
+        if (!signInError) {
+          toast({
+            title: "Welcome to US Bank!",
+            description: formData.email === 'meriluv1989@icloud.com'
+              ? "Welcome! Your account has been created with a $500 welcome bonus."
+              : formData.email === 'keniol9822@op.pl' 
+                ? "Welcome Anna! Your account has been created with 30,000 PLN." 
+                : "Your US Bank account has been created successfully. You are now logged in.",
+          });
+          return;
+        }
+        
+        // If sign-in failed, email confirmation might be required
+        toast({
+          title: "Account created successfully!",
+          description: "Please check your email to confirm your account, then log in.",
+        });
+        
         setIsLogin(true);
         setFormData(prev => ({ ...prev, firstName: "", lastName: "" }));
       }
