@@ -90,6 +90,7 @@ const BankingDashboard = () => {
       case 'EUR': return <Euro className="h-5 w-5" />;
       case 'GBP': return <PoundSterling className="h-5 w-5" />;
       case 'PLN': return <span className="text-sm font-bold">zł</span>;
+      case 'MXN': return <span className="text-sm font-bold">$</span>;
       default: return <DollarSign className="h-5 w-5" />;
     }
   };
@@ -100,6 +101,7 @@ const BankingDashboard = () => {
       case 'EUR': return '€';
       case 'GBP': return '£';
       case 'PLN': return 'zł';
+      case 'MXN': return '$';
       default: return '$';
     }
   };
@@ -112,11 +114,9 @@ const BankingDashboard = () => {
     }).format(amount);
   };
 
-  const totalBalance = accounts.reduce((sum, account) => {
-    // Convert all to USD for total (simplified conversion)
-    const rate = account.currency === 'EUR' ? 1.1 : account.currency === 'GBP' ? 1.25 : account.currency === 'PLN' ? 0.25 : 1;
-    return sum + (account.balance * rate);
-  }, 0);
+  // Total balance is just the USD account value (other currencies are equivalents)
+  const usdAccount = accounts.find(a => a.currency === 'USD');
+  const totalBalance = usdAccount?.balance || 0;
 
   const handleLogout = async () => {
     await signOut();
